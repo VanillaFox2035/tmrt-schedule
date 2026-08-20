@@ -1,7 +1,7 @@
 import time
 import csv
 from enum import Enum
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from dataclasses import dataclass, field
 from ortools.sat.python import cp_model
 
@@ -88,6 +88,7 @@ def get_inputs(model: cp_model.CpModel):
   workers.append(Worker("110007", "GGG", "B", [R, M, M, M, E, E], 9, 2, [0 ,0 ,0 ,0], [], [], [], []))
   workers.append(Worker("110008", "HHH", "A", [E, R, R, R, R, M], 9, 2, [0 ,0 ,0 ,0], [], [], [], []))
   workers.append(Worker("110009", "III", "A", [R, R, E, E, N, N], 9, 2, [0 ,0 ,0 ,0], [], [], [date(2026, 9, 15),date(2026, 9, 16)], [date(2026, 9, 29),date(2026, 9, 30)]))
+  workers.append(Worker("110010", "JJJ", "A", [R, N, N, N, R, R], 9, 2, [0 ,0 ,0 ,0], [], [], [], []))
   # ********
   shift_table = create_shift_table(model, start_date, end_date, workers)
   input = InputType(start_date, end_date, rest_closing_date, workers, shift_table)
@@ -402,7 +403,8 @@ def solve_model(model: cp_model.CpModel, solver: cp_model.CpSolver, solve_time_m
     def __init__(self):
         cp_model.CpSolverSolutionCallback.__init__(self)
     def on_solution_callback(self):
-        print(f"New solution found! Loss: {self.ObjectiveValue()}")
+        now = datetime.now()
+        print(f"{now.strftime("%Y-%m-%d %H:%M:%S")} 找到可行解! Loss: {self.ObjectiveValue()}")
   printer = ObjectivePrinter()
   solver.parameters.max_time_in_seconds = solve_time_max
   status = solver.solve(model, printer)
@@ -559,7 +561,7 @@ def main():
   set_soft_contraints(model, data)
 
   # 解題並輸出結果
-  status = solve_model(model, solver, 1800.0)
+  status = solve_model(model, solver, 3600.0)
   get_outputs(status, solver, data)
   print_checks(status, solver, data)
 
