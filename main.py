@@ -314,9 +314,8 @@ def set_soft_contraints(model: cp_model.CpModel, data: InputType):
       model.add(morning_count == sum(shift_table[w, d, M.value] for d in range(LAST_SHIFTS_COUNT, LAST_SHIFTS_COUNT + num_days)))
       model.add(evening_count == sum(shift_table[w, d, E.value] for d in range(LAST_SHIFTS_COUNT, LAST_SHIFTS_COUNT + num_days)))
       model.add(night_count   == sum(shift_table[w, d, N.value] for d in range(LAST_SHIFTS_COUNT, LAST_SHIFTS_COUNT + num_days)))
-      model.add(night_count   == sum(shift_table[w, d, N.value] for d in range(LAST_SHIFTS_COUNT, LAST_SHIFTS_COUNT + num_days)))
-    # ****WIP********
-
+      model.add_abs_equality(shift_diff, night_count * 2 - morning_count - evening_count)
+      loss.append(shift_diff * NIGHT_DIFF_PENALTY)
 
   # 連續上幾天班時的懲罰值，讓連續上班天數盡量接近3~5天
   CONTINUOUS_SHIFT_PENALTIES = {
